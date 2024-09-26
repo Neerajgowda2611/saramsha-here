@@ -1,46 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, ActivityIndicator } from 'react-native';
-// import { fetchTranscriptionAndSummary } from '../api'; // 
+import React from 'react';
+import { View, Text, Button } from 'react-native';
 
 const ResultsScreen = ({ route, navigation }: { route: any, navigation: any }) => {
-  const { audioPath } = route.params;
-  const [transcript, setTranscript] = useState('');
-  const [summary, setSummary] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getResults = async () => {
-      try {
-        // const { transcript, summary } = await fetchTranscriptionAndSummary(audioPath);
-        setTranscript(transcript);
-        setSummary(summary);
-      } catch (error) {
-        console.error('Failed to fetch results:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getResults();
-  }, [audioPath]);
+  const { transcription, summary } = route.params || {
+      transcription: "No transcription available",
+      summary: "No summary available"
+  };
 
   return (
-    <View style={{ padding: 20 }}>
-      {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
-        <>
+      <View style={{ padding: 20 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transcript:</Text>
-          <Text>{transcript}</Text>
+          <Text>{transcription}</Text>
           <View style={{ marginVertical: 10 }} />
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Summarization:</Text>
           <Text>{summary}</Text>
           <View style={{ marginVertical: 20 }} />
           <Button title="Back" onPress={() => navigation.goBack()} />
-        </>
-      )}
-    </View>
+      </View>
   );
 };
+
 
 export default ResultsScreen;

@@ -36,7 +36,43 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginTop: 10,
     width: '80%',
-  }
+  },
+  // New styles added for the HistoryScreen component
+  historyItem: {
+    padding: 10,
+    marginVertical: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    width: '100%',
+  },
+  selectedItemContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    width: '100%',
+  },
+  selectedItemText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+  },
+  audioControls: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  content: {
+    fontSize: 16,
+    color: '#555555',
+    marginBottom: 15,
+    textAlign: 'left',
+    width: '100%',
+  },
 });
 
 export default styles;

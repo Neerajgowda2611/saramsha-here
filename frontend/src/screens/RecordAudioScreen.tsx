@@ -1,6 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Button, Text, Alert, PermissionsAndroid, Platform } from 'react-native';
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import AudioRecorderPlayer, {
+  AVEncoderAudioQualityIOSType,
+  AVEncodingOption,
+  AudioEncoderAndroidType,
+  AudioSourceAndroidType,
+} from 'react-native-audio-recorder-player';
 import RNFS from 'react-native-fs';
 import styles from '../styles/styles';
 
@@ -10,26 +15,48 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
   const [recording, setRecording] = useState(false);
   const [audioPath, setAudioPath] = useState('');
 
+  useEffect(() => {
+    return () => {
+      if (recording) {
+        audioRecorderPlayer.stopRecorder();
+        audioRecorderPlayer.removeRecordBackListener();
+      }
+    };
+  }, [recording]);
+
   const requestPermissions = async () => {
     if (Platform.OS === 'android') {
       try {
-        const granted = await PermissionsAndroid.request(
+        const grants = await PermissionsAndroid.requestMultiple([
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission Required',
-            message: 'App needs access to your storage to save audio files',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        ]);
+
+        const allGranted = Object.values(grants).every(
+          (status) => status === PermissionsAndroid.RESULTS.GRANTED
         );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } catch (error) {
-        console.warn('Storage permission error:', error);
+
+        if (!allGranted) {
+          Alert.alert('Permissions required', 'Please grant all permissions to use this feature.');
+          return false;
+        }
+        return true;
+      } catch (err) {
+        console.warn(err);
         return false;
       }
     }
     return true;
+  };
+
+  const getAudioFilePath = () => {
+    const fileName = `audio_${Date.now()}.mp3`;
+    if (Platform.OS === 'android') {
+      return `${RNFS.ExternalStorageDirectoryPath}/Music/${fileName}`;
+    } else {
+      return `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    }
   };
 
   const startRecording = async () => {
@@ -38,24 +65,35 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
       return;
     }
 
-    // Check and request storage permission
     const hasPermission = await requestPermissions();
     if (!hasPermission) {
-      Alert.alert('Permission Denied', 'Cannot save the recording without permission.');
       return;
     }
 
+    const path = getAudioFilePath();
+    setAudioPath(path);
+
+    const audioSet = {
+      AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
+      AudioSourceAndroid: AudioSourceAndroidType.MIC,
+      AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
+      AVNumberOfChannelsKeyIOS: 2,
+      AVFormatIDKeyIOS: AVEncodingOption.aac,
+    };
+
+    console.log('Audio set:', audioSet);
+    console.log('File path:', path);
+
     try {
-      await audioRecorderPlayer.stopRecorder();
-      // Save the recording to the Music folder
-      const path = `${RNFS.ExternalStorageDirectoryPath}/Music/audio_${Date.now()}.mp3`;
-      setAudioPath(path);
-      await audioRecorderPlayer.startRecorder(path);
+      const result = await audioRecorderPlayer.startRecorder(path, audioSet);
+      audioRecorderPlayer.addRecordBackListener((e) => {
+        console.log('Recording . . . ', e.currentPosition);
+      });
+      console.log('Recording started', result);
       setRecording(true);
       Alert.alert('Recording started', `File will be saved to: ${path}`);
     } catch (error) {
-      setRecording(false);
-      console.error('Failed to start recording:', error);
+      console.error('Error starting recording:', error);
       Alert.alert('Error', `Failed to start recording: ${error}`);
     }
   };
@@ -67,16 +105,15 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
     }
 
     try {
-      await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removePlayBackListener();
+      const result = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
       setRecording(false);
-      Alert.alert('Recording stopped', `File saved at: ${audioPath}`);
-      
-      // Navigate to PlayAudioScreen with the audio path
-      navigation.navigate('PlayAudio', { audioPath });
+      console.log('Recording stopped', result);
+      Alert.alert('Recording stopped', `File saved at: ${result}`);
+
+      navigation.navigate('PlayAudio', { audioPath: result });
     } catch (error) {
-      setRecording(false);
-      console.error('Failed to stop recording:', error);
+      console.error('Error stopping recording:', error);
       Alert.alert('Error', `Failed to stop recording: ${error}`);
     }
   };
@@ -84,17 +121,13 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
   return (
     <View style={styles.container}>
       <Text>Record Audio</Text>
-
       <Button title="Start Recording" onPress={startRecording} disabled={recording} />
       <View style={styles.buttonGap} />
-
       <Button title="Stop Recording" onPress={stopRecording} disabled={!recording} />
       <View style={styles.buttonGap} />
-
       <Button title="Back" onPress={() => navigation.goBack()} />
     </View>
   );
 };
 
 export default RecordAudioScreen;
-

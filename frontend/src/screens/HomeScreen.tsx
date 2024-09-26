@@ -12,6 +12,9 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UploadAudio')}>
         <Text style={styles.buttonText}>Upload Audio</Text>
       </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('HistoryScreen')}>
+        <Text style={styles.buttonText}>History</Text>
+      </TouchableOpacity>
     </View>
   );
 };

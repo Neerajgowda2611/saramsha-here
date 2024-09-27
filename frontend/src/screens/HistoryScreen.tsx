@@ -8,7 +8,7 @@ import styles from '../styles/styles';
 type HistoryItem = {
   audioPath: string;
   timestamp: number;
-  transcription: string; // Changed from 'transcript' to 'transcription' to match generated data
+  transcription: string;
   summary: string;
 };
 
@@ -74,15 +74,20 @@ const HistoryScreen = ({ navigation }: { navigation: any }) => {
     }
   };
 
-  const renderHistoryItem = ({ item }: { item: HistoryItem }) => (
-    <TouchableOpacity
-      onPress={() => setSelectedItem(item)}
-      style={styles.historyItem}
-    >
-      <Text>{item.audioPath}</Text>
-      <Text>{new Date(item.timestamp).toLocaleString()}</Text>
-    </TouchableOpacity>
-  );
+  const renderHistoryItem = ({ item }: { item: HistoryItem }) => {
+    const fileName = item.audioPath.split('/').pop(); // Extract the file name from the path
+
+    return (
+      <TouchableOpacity
+        onPress={() => setSelectedItem(item)}
+        style={styles.historyItem}
+      >
+        {/* Wrap each text inside a <Text> component */}
+        <Text>{fileName}</Text>
+        <Text>{new Date(item.timestamp).toLocaleString()}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   const renderAudioControls = () => (
     <View style={styles.audioControls}>
@@ -99,7 +104,7 @@ const HistoryScreen = ({ navigation }: { navigation: any }) => {
       <Button
         title="View"
         onPress={() => selectedItem && navigation.navigate('ViewScreen', {
-          transcript: selectedItem.transcription, // Ensure this matches the generated data
+          transcript: selectedItem.transcription,
           summary: selectedItem.summary,
         })}
       />
@@ -118,8 +123,9 @@ const HistoryScreen = ({ navigation }: { navigation: any }) => {
 
       {selectedItem && selectedItem.audioPath && (
         <View style={styles.selectedItemContainer}>
+          {/* Ensure that the text is properly wrapped */}
           <Text style={styles.selectedItemText}>
-            Selected File: {selectedItem.audioPath}
+            Selected File: {selectedItem.audioPath.split('/').pop()}
           </Text>
           {renderAudioControls()}
         </View>

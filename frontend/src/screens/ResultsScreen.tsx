@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, ScrollView } from 'react-native';
 
 const ResultsScreen = ({ route, navigation }: { route: any, navigation: any }) => {
   const { transcription, summary } = route.params || {
@@ -8,7 +8,7 @@ const ResultsScreen = ({ route, navigation }: { route: any, navigation: any }) =
   };
 
   return (
-      <View style={{ padding: 20 }}>
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Transcript:</Text>
           <Text>{transcription}</Text>
           <View style={{ marginVertical: 10 }} />
@@ -16,9 +16,8 @@ const ResultsScreen = ({ route, navigation }: { route: any, navigation: any }) =
           <Text>{summary}</Text>
           <View style={{ marginVertical: 20 }} />
           <Button title="Back" onPress={() => navigation.goBack()} />
-      </View>
+      </ScrollView>
   );
 };
-
 
 export default ResultsScreen;

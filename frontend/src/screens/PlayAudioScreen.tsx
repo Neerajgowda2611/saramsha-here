@@ -12,6 +12,7 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [localPath, setLocalPath] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // <-- Added state for loading
 
   useEffect(() => {
     if (!audioPath) {
@@ -94,6 +95,8 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
         return;
     }
 
+    setLoading(true); // <-- Set loading to true when starting the process
+
     try {
         const formData = new FormData();
         formData.append('file', {
@@ -112,7 +115,6 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
         });
 
         const responseData = await response.json();
-        // console.log('Response Data:', responseData);
 
         if (!response.ok) {
             console.error('Response error:', responseData);
@@ -138,8 +140,10 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
     } catch (error) {
         Alert.alert('Error', 'An error occurred while processing the audio.');
         console.error('Audio processing error:', error);
+    } finally {
+        setLoading(false); // <-- Set loading back to false when the process is done
     }
-};
+  };
 
   
   return (
@@ -156,7 +160,11 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
           <Button title="Stop" onPress={stopPlaying} disabled={!isPlaying} />
           <View style={styles.buttonGap} />
 
-          <Button title="Generate" onPress={generate} disabled={isPlaying} />
+          {loading ? (  // <-- Show loading spinner when generating
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : (
+            <Button title="Generate" onPress={generate} disabled={isPlaying} />
+          )}
           <View style={styles.buttonGap} />
 
           <Button title="Back" onPress={() => { stopPlaying(); navigation.goBack(); }} />
@@ -167,3 +175,4 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
 };
 
 export default PlayAudioScreen;
+

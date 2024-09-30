@@ -36,7 +36,6 @@ const UploadAudioScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Upload Audio</Text>
       <Button title="Upload Audio File" onPress={pickAudio} />
       {fileName ? <Text style={styles.fileName}>Selected File: {fileName}</Text> : null}
       <View style={styles.buttonGap} />

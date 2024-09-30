@@ -1,12 +1,12 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
-import HomeScreen from '/home/silent/saramsha-here/frontend/src/screens/HomeScreen.tsx';
-import RecordAudioScreen from '/home/silent/saramsha-here/frontend/src/screens/RecordAudioScreen.tsx';
-import UploadAudioScreen from '/home/silent/saramsha-here/frontend/src/screens/UploadAudioScreen.tsx';
-import PlayAudioScreen from '/home/silent/saramsha-here/frontend/src/screens/PlayAudioScreen.tsx'; 
-import ResultsScreen from '/home/silent/saramsha-here/frontend/src/screens/ResultsScreen.tsx';
+import HomeScreen from '../screens/HomeScreen.tsx';
+import RecordAudioScreen from '../screens/RecordAudioScreen.tsx';
+import UploadAudioScreen from '../screens/UploadAudioScreen.tsx';
+import PlayAudioScreen from '../screens/PlayAudioScreen.tsx'; 
+import ResultsScreen from '../screens/ResultsScreen.tsx';
 import HistoryScreen from '../screens/HistoryScreen';
-import ViewScreen from '/home/silent/saramsha-here/frontend/src/screens/ViewScreen.tsx';
+import ViewScreen from '../screens/ViewScreen.tsx';
 
 
 // import UploadPlayAudioScreen from '../screens/UploadPlayAudioScreen';

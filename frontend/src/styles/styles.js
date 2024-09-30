@@ -73,6 +73,12 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     width: '100%',
   },
+  renameContainer: {
+    padding: 10,
+    marginTop: 20,
+    backgroundColor: '#f0f0f0',  
+    alignItems: 'center',
+  },
 });
 
 export default styles;

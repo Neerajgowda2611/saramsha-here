@@ -122,7 +122,6 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={styles.container}>
-      {/* <Text>Record Audio</Text> */}
       <Button title="Start Recording" onPress={startRecording} disabled={recording} />
       <View style={styles.buttonGap} />
       <Button title="Stop Recording" onPress={stopRecording} disabled={!recording} />

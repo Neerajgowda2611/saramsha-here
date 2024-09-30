@@ -102,7 +102,7 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
             type: 'audio/mpeg', // Confirm this type is correct
         });
 
-        const response = await fetch('http://22.0.0.117:8000/upload-audio', {
+        const response = await fetch('https://saramshabk.cialabs.org/upload-audio', {
             method: 'POST',
             body: formData,
             headers: {

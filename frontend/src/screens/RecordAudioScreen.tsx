@@ -26,25 +26,32 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
 
   const requestPermissions = async () => {
     if (Platform.OS === 'android') {
-      try {
-        const grants = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-        ]);
+      const isAndroid13OrAbove = Platform.Version >= 33; // API Level 33 for Android 13
 
-        const allGranted = Object.values(grants).every(
-          (status) => status === PermissionsAndroid.RESULTS.GRANTED
-        );
+      if (isAndroid13OrAbove) {
+        // On Android 13 and above, WRITE_EXTERNAL_STORAGE is granted by default
+        return true;
+      } else {
+        try {
+          const grants = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          ]);
 
-        if (!allGranted) {
-          Alert.alert('Permissions required', 'Please grant all permissions to use this feature.');
+          const allGranted = Object.values(grants).every(
+            (status) => status === PermissionsAndroid.RESULTS.GRANTED
+          );
+
+          if (!allGranted) {
+            Alert.alert('Permissions required', 'Please grant all permissions to use this feature.');
+            return false;
+          }
+          return true;
+        } catch (err) {
+          console.warn(err);
           return false;
         }
-        return true;
-      } catch (err) {
-        console.warn(err);
-        return false;
       }
     }
     return true;
@@ -81,9 +88,6 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
       AVFormatIDKeyIOS: AVEncodingOption.aac,
     };
 
-    console.log('Audio set:', audioSet);
-    console.log('File path:', path);
-
     try {
       const result = await audioRecorderPlayer.startRecorder(path, audioSet);
       audioRecorderPlayer.addRecordBackListener((e) => {
@@ -108,9 +112,7 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
       const result = await audioRecorderPlayer.stopRecorder();
       audioRecorderPlayer.removeRecordBackListener();
       setRecording(false);
-      console.log('Recording stopped', result);
       Alert.alert('Recording stopped', `File saved at: ${result}`);
-
       navigation.navigate('PlayAudio', { audioPath: result });
     } catch (error) {
       console.error('Error stopping recording:', error);

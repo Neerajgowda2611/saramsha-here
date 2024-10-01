@@ -1,0 +1,23 @@
+#python image as base image
+FROM python:3.10-slim
+
+#set the working directory inside container
+WORKDIR /app
+
+#copy requirements file to container
+COPY requirements.txt .
+
+#install the dependencies
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    pip install --no-cache-dir -r requirements.txt
+
+#copy the code to container
+COPY src/ ./src
+
+#expose port that uvicorn will run on 
+EXPOSE 8000
+
+#command to run the application 
+CMD [ "uvicorn" , "src.main:app" , "--host", "0.0.0.0" , "--port" , "8000" ]
+

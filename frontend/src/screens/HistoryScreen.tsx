@@ -166,7 +166,7 @@ const HistoryScreen = ({ navigation }: { navigation: any }) => {
 
       {selectedItem && selectedItem.audioPath && (
         <View style={styles.selectedItemContainer}>
-          <Text style={{ color: isDarkMode ? '#FFFFFF' : '#000000' }}>
+          <Text style={{ color: 'blue' }}>
             Selected File: {selectedItem.audioPath.split('/').pop()}
           </Text>
           {renderAudioControls()}

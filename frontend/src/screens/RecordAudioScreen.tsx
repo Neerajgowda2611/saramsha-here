@@ -6,6 +6,7 @@ import AudioRecorderPlayer, {
   AudioEncoderAndroidType,
   AudioSourceAndroidType,
 } from 'react-native-audio-recorder-player';
+import KeepAwake from 'react-native-keep-awake';
 import RNFS from 'react-native-fs';
 import styles from '../styles/styles';
 
@@ -84,8 +85,8 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
       AudioEncoderAndroid: AudioEncoderAndroidType.AAC,
       AudioSourceAndroid: AudioSourceAndroidType.MIC,
       AVEncoderAudioQualityKeyIOS: AVEncoderAudioQualityIOSType.high,
-      AVNumberOfChannelsKeyIOS: 2,
-      AVFormatIDKeyIOS: AVEncodingOption.aac,
+      // AVNumberOfChannelsKeyIOS: 2,
+      // AVFormatIDKeyIOS: AVEncodingOption.aac,
     };
 
     try {
@@ -96,6 +97,7 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
       console.log('Recording started', result);
       setRecording(true);
       Alert.alert('Recording started', `File will be saved to: ${path}`);
+      KeepAwake.activate(); 
     } catch (error) {
       console.error('Error starting recording:', error);
       Alert.alert('Error', `Failed to start recording: ${error}`);
@@ -114,6 +116,7 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
       setRecording(false);
       Alert.alert('Recording stopped', `File saved at: ${result}`);
       navigation.navigate('PlayAudio', { audioPath: result });
+      KeepAwake.deactivate(); 
     } catch (error) {
       console.error('Error stopping recording:', error);
       Alert.alert('Error', `Failed to stop recording: ${error}`);
@@ -132,3 +135,6 @@ const RecordAudioScreen = ({ navigation }: { navigation: any }) => {
 };
 
 export default RecordAudioScreen;
+
+
+// ///////////////////////////////////////////////////////////////////////////////////

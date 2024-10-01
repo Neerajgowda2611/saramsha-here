@@ -19,6 +19,5 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   );
 };
 
-// Add styles here...
 
 export default HomeScreen;

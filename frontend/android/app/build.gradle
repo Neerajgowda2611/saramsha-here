@@ -82,7 +82,7 @@ android {
         applicationId "com.saramsha"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
+        versionCode 5
         versionName "1.0"
     }
     signingConfigs {
@@ -94,9 +94,9 @@ android {
         }
         release {
              storeFile file('/home/silent/Documents/saramsha-here/frontend/android/app/saramsha.keystore')  // Replace with your keystore
-            storePassword 'xxxxxxxx'         // Replace with your keystore password
+            storePassword 'arkadminxdxd1@#$'         // Replace with your keystore password
             keyAlias 'saramsha'                      // Replace with your key alias
-            keyPassword 'xxxxxxxx' 
+            keyPassword 'arkadminxdxd1@#$' 
         }
     }
     buildTypes {

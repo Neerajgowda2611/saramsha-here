@@ -12,7 +12,10 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [localPath, setLocalPath] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // <-- Added state for loading
+  const [loading, setLoading] = useState(false); // State for loading
+  const [loadingMessage, setLoadingMessage] = useState('Preparing audio...'); // State for dynamic loading message
+  const [messageColor, setMessageColor] = useState('#000'); // Color for text
+  const [spinnerColor, setSpinnerColor] = useState('#0000ff'); // Color for spinner
 
   useEffect(() => {
     if (!audioPath) {
@@ -62,6 +65,38 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
     };
   }, [audioPath]);
 
+  useEffect(() => {
+    if (loading) {
+      const messages = [
+        'It takes more than 10 seconds to generate results',
+        'Processing your audio...',
+        'Hang tight, summarizing your content!',
+        'Just a few more moments...',
+        'Still working on it!',
+        'Almost there, stay with us!',
+        'Patience is a virtue!',
+        'Thanks for waiting...',
+        'Hold on, results are coming!',
+        'Analyzing your audio...',
+        'Preparing transcription for you...'
+      ];
+
+      let index = 0;
+
+      // Set the colors to green, violet, blue, and yellow
+      const colors = ['#00FF00', '#EE82EE', '#0000FF'];
+
+      const intervalId = setInterval(() => {
+        setLoadingMessage(messages[index]);
+        setMessageColor(colors[index % colors.length]); // Set the message text color
+        setSpinnerColor(colors[(index + 1) % colors.length]); // Set the spinner color
+        index = (index + 1) % messages.length;
+      }, 1000); // Update every 1 second
+
+      return () => clearInterval(intervalId); // Clean up the interval
+    }
+  }, [loading]);
+
   const startPlaying = () => {
     if (sound) {
       sound.play((success) => {
@@ -90,78 +125,80 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
 
   const generate = async () => {
     if (!localPath) {
-        Alert.alert('Error', 'No audio file available.');
-        console.error('Local path is not set:', localPath);
-        return;
+      Alert.alert('Error', 'No audio file available.');
+      console.error('Local path is not set:', localPath);
+      return;
     }
 
-    setLoading(true); // <-- Set loading to true when starting the process
+    setLoading(true); // Start loading
 
     try {
-        const formData = new FormData();
-        formData.append('file', {
-            uri: localPath.startsWith('file://') ? localPath : `file://${localPath}`,
-            name: `audio_${Date.now()}.mp3`, // Make sure this matches the file type
-            type: 'audio/mpeg', // Confirm this type is correct
-        });
+      const formData = new FormData();
+      formData.append('file', {
+        uri: localPath.startsWith('file://') ? localPath : `file://${localPath}`,
+        name: `audio_${Date.now()}.mp3`, // Make sure this matches the file type
+        type: 'audio/mpeg', // Confirm this type is correct
+      });
 
-        const response = await fetch('https://saramshabk.cialabs.org/upload-audio', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data', // Generally, let fetch handle this
-            },
-        });
+      const response = await fetch('https://saramshabk.cialabs.org/upload-audio', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data', // Generally, let fetch handle this
+        },
+      });
 
-        const responseData = await response.json();
+      const responseData = await response.json();
 
-        if (!response.ok) {
-            console.error('Response error:', responseData);
-            throw new Error(`Failed to process the audio: ${responseData.detail || responseData.message}`);
-        }
+      if (!response.ok) {
+        console.error('Response error:', responseData);
+        throw new Error(`Failed to process the audio: ${responseData.detail || responseData.message}`);
+      }
 
-        const { transcription, summary } = responseData;
+      const { transcription, summary } = responseData;
 
-        const historyItem = {
-            audioPath: localPath,
-            transcription,
-            summary,
-            timestamp: Date.now(),
-        };
+      const historyItem = {
+        audioPath: localPath,
+        transcription,
+        summary,
+        timestamp: Date.now(),
+      };
 
-        const storedHistory = await AsyncStorage.getItem('history');
-        const history = storedHistory ? JSON.parse(storedHistory) : [];
-        const updatedHistory = [historyItem, ...history].slice(0, 10);
+      const storedHistory = await AsyncStorage.getItem('history');
+      const history = storedHistory ? JSON.parse(storedHistory) : [];
+      const updatedHistory = [historyItem, ...history].slice(0, 10);
 
-        await AsyncStorage.setItem('history', JSON.stringify(updatedHistory));
+      await AsyncStorage.setItem('history', JSON.stringify(updatedHistory));
 
-        navigation.navigate('ResultsScreen', { transcription, summary });
+      navigation.navigate('ResultsScreen', { transcription, summary });
     } catch (error) {
-        Alert.alert('Error', 'An error occurred while processing the audio.');
-        console.error('Audio processing error:', error);
+      Alert.alert('Error', 'An error occurred while processing the audio.');
+      console.error('Audio processing error:', error);
     } finally {
-        setLoading(false); // <-- Set loading back to false when the process is done
+      setLoading(false); // Stop loading
     }
   };
 
-  
   return (
     <View style={styles.container}>
       {isLoading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <>
-          <Text>Audio Playback</Text>
-
+        {/* <title>It may take more thn 10 seconds to generate results </title> */}
           <Button title="Play" onPress={startPlaying} disabled={isPlaying} />
           <View style={styles.buttonGap} />
 
           <Button title="Stop" onPress={stopPlaying} disabled={!isPlaying} />
           <View style={styles.buttonGap} />
 
-          {loading ? (  // <-- Show loading spinner when generating
-            <ActivityIndicator size="large" color="#0000ff" />
+          {loading ? (
+            <View>
+              {/* Display the dynamic loading message with color */}
+              <Text style={{ color: messageColor }}>{loadingMessage}</Text> 
+              <ActivityIndicator size="large" color={spinnerColor} />
+            </View>
           ) : (
             <Button title="Generate" onPress={generate} disabled={isPlaying} />
           )}
@@ -175,4 +212,3 @@ const PlayAudioScreen = ({ route, navigation }: { route: any, navigation: any })
 };
 
 export default PlayAudioScreen;
-
